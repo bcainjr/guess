@@ -16,11 +16,7 @@ import random
 import re
 
 
-def main():
-    regexInput = "^\d+$"
-    numToGuess = random.randint(1, 100)
-    validGuesses = 0
-
+def guessGame():
     print("I'm Thinking of a number from 1 to 100")
     usrInput = input("Try to guess my number: ")
 
@@ -40,11 +36,22 @@ def main():
                 usrInput = input("{} is too high - please guess again: ".
                                  format(usrInput))
             else:
-                usrInput = input("{} is not a valid guess -
+                usrInput = input("{} is not a valid guess - \
                                  please guess again: ".format(usrInput))
         else:
             usrInput = input("{} is not a valid guess - please guess again: ".
                              format(usrInput))
+
+
+def main():
+    regexInput = "^\d+$"
+    numToGuess = random.randint(1, 100)
+    validGuesses = 0
+
+    try:
+        guessGame()
+    except (KeyboardInterrupt, EOFError):
+        print("\nWorks")
 
 
 if __name__ == "__main__":
