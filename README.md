@@ -1,0 +1,1 @@
+A guessing game the asks for a number between 1 and 100, if the user guesses it they win. If not, the program will tell you if you were higher or lower than the number.
