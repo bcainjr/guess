@@ -13,10 +13,38 @@
 
 
 import random
+import re
 
 
 def main():
-    pass
+    regexInput = "^\d+$"
+    numToGuess = random.randint(1, 100)
+    validGuesses = 0
+
+    print("I'm Thinking of a number from 1 to 100")
+    usrInput = input("Try to guess my number: ")
+
+    while True:
+        usrValidation = re.search(regexInput, usrInput)
+        validGuesses += 1
+
+        if usrValidation:
+            if int(usrInput) == numToGuess:
+                print("{} is correct! You guessed my number in {} guesses.".
+                      format(usrInput, validGuesses))
+                break
+            elif 1 <= int(usrInput) < numToGuess:
+                usrInput = input("{} is too low - please guess again: ".
+                                 format(usrInput))
+            elif numToGuess < int(usrInput) <= 100:
+                usrInput = input("{} is too high - please guess again: ".
+                                 format(usrInput))
+            else:
+                usrInput = input("{} is not a valid guess -
+                                 please guess again: ".format(usrInput))
+        else:
+            usrInput = input("{} is not a valid guess - please guess again: ".
+                             format(usrInput))
 
 
 if __name__ == "__main__":
