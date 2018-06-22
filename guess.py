@@ -14,16 +14,21 @@
 
 import sys
 import random
-import re
 
 
 def guessGame(cliArg=None):
+    """
+        The guessGame function is used to handle the games functionality.
+        The game will pick a random number 1 to 100 and prompt the user
+        to guess it. It will tell the user if the guess is right,
+        to low or to high.
+    """
     numToGuess = random.randint(1, 100)
     validGuesses = 0
     guesses = False
     lied = False
-    toHigh = "{} is too high - please guess again"
-    toLow = "{} is too low - please guess again"
+    toHigh = "{} is too high - try again"
+    toLow = "{} is too low - try again"
 
     if cliArg == "-u":
         ulamsNum = ulams(numToGuess)
@@ -43,42 +48,52 @@ def guessGame(cliArg=None):
                 validGuesses += 1
                 guesses = True
             else:
-                print("{} is not a valid guess - please guess again".
+                print("{} is not a valid guess - try again".
                       format(usrInput), end="")
                 continue
 
         except (KeyboardInterrupt, EOFError):
             usrInput = input("\nWould you like to quit [y]es|[n]o: ")
-            
+
             if usrInput.lower() in ["y", "yes"]:
-                exit()
+                break
             elif usrInput.lower() in ["n", "no"]:
                 guesses = False
                 continue
             else:
                 print("Seriously... I quit...")
-                exit()
+                break
 
         if intInput == numToGuess:
             print("{} is correct! You guessed my number in {} guesses.".
                   format(usrInput, validGuesses))
             if lied:
-                pass
+                print(iLied.format(ulamsNum))
             elif cliArg == "-u":
                 print("I did not lie this game.")
             break
         elif intInput < numToGuess:
-            if ulamsNum == numToGuess:
+            if intInput == ulamsNum:
                 print(toHigh.format(usrInput), end="")
+                iLied = "I lied about {} being to high."
+                lied = True
             else:
                 print(toLow.format(usrInput), end="")
         elif intInput > numToGuess:
-            if ulamsNum == numToGuess:
+            if intInput == ulamsNum:
                 print(toLow.format(usrInput), end="")
+                iLied = "I lied about {} being to low"
+                lied = True
             else:
                 print(toHigh.format(usrInput), end="")
 
+
 def ulams(defaultRandInt):
+    """
+        ulams function is used when the -u option is used on the
+        command line. It will pick a random number not equal to the
+        numberToGuess in the guessGame function.
+    """
     eqNum = True
     while eqNum:
         randNum = random.randint(1, 100)
