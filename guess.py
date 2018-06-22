@@ -12,46 +12,91 @@
 # If its higher or lower the the computer will indicate as so.
 
 
+import sys
 import random
 import re
 
 
-def guessGame():
-    print("I'm Thinking of a number from 1 to 100")
-    usrInput = input("Try to guess my number: ")
+def guessGame(cliArg=None):
+    numToGuess = random.randint(1, 100)
+    validGuesses = 0
+    guesses = False
+    lied = False
+    toHigh = "{} is too high - please guess again"
+    toLow = "{} is too low - please guess again"
+
+    if cliArg == "-u":
+        ulamsNum = ulams(numToGuess)
+    else:
+        ulamsNum = 0
 
     while True:
-        usrValidation = re.search(regexInput, usrInput)
-        validGuesses += 1
+        if not guesses:
+            print("I'm Thinking of a number from 1 to 100\n"
+                  "Try to guess my number", end="")
 
-        if usrValidation:
-            if int(usrInput) == numToGuess:
-                print("{} is correct! You guessed my number in {} guesses.".
-                      format(usrInput, validGuesses))
-                break
-            elif 1 <= int(usrInput) < numToGuess:
-                usrInput = input("{} is too low - please guess again: ".
-                                 format(usrInput))
-            elif numToGuess < int(usrInput) <= 100:
-                usrInput = input("{} is too high - please guess again: ".
-                                 format(usrInput))
+        try:
+            usrInput = input(": ")
+
+            if usrInput.isdigit() and 1 <= int(usrInput) <= 100:
+                intInput = int(usrInput)
+                validGuesses += 1
+                guesses = True
             else:
-                usrInput = input("{} is not a valid guess - \
-                                 please guess again: ".format(usrInput))
-        else:
-            usrInput = input("{} is not a valid guess - please guess again: ".
-                             format(usrInput))
+                print("{} is not a valid guess - please guess again".
+                      format(usrInput), end="")
+                continue
+
+        except (KeyboardInterrupt, EOFError):
+            usrInput = input("\nWould you like to quit [y]es|[n]o: ")
+            
+            if usrInput.lower() in ["y", "yes"]:
+                exit()
+            elif usrInput.lower() in ["n", "no"]:
+                guesses = False
+                continue
+            else:
+                print("Seriously... I quit...")
+                exit()
+
+        if intInput == numToGuess:
+            print("{} is correct! You guessed my number in {} guesses.".
+                  format(usrInput, validGuesses))
+            if lied:
+                pass
+            elif cliArg == "-u":
+                print("I did not lie this game.")
+            break
+        elif intInput < numToGuess:
+            if ulamsNum == numToGuess:
+                print(toHigh.format(usrInput), end="")
+            else:
+                print(toLow.format(usrInput), end="")
+        elif intInput > numToGuess:
+            if ulamsNum == numToGuess:
+                print(toLow.format(usrInput), end="")
+            else:
+                print(toHigh.format(usrInput), end="")
+
+def ulams(defaultRandInt):
+    eqNum = True
+    while eqNum:
+        randNum = random.randint(1, 100)
+        if not randNum == defaultRandInt:
+            eqNum = False
+
+    return randNum
 
 
 def main():
-    regexInput = "^\d+$"
-    numToGuess = random.randint(1, 100)
-    validGuesses = 0
-
-    try:
+    if "-u" in sys.argv and len(sys.argv) < 3:
+        guessGame(sys.argv[1])
+    elif len(sys.argv) == 1:
         guessGame()
-    except (KeyboardInterrupt, EOFError):
-        print("\nWorks")
+    else:
+        print("Improper use of CLI arguments\n"
+              "No arguments for default.\n"
+              "-u for Ulam's game.\n")
 
 
 if __name__ == "__main__":
