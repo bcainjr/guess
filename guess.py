@@ -12,10 +12,10 @@
 # If its higher or lower the the computer will indicate as so.
 
 
-import sys
-import random
+import sys      # Read CLI arguments
+import random   # Generate the random numbers
 import shelve   # Using shelve for possible expansion of project.
-import os.path
+import os.path  # Check if a file exists
 
 
 class Stats:
@@ -73,9 +73,7 @@ class Stats:
         self._invalidGuesses = invalidGuesses
 
     def load(self):
-        """
-            The load method loads the players statistics.
-        """
+        """The load method loads the players statistics."""
 
         with shelve.open("guessGameStats.save", "c") as aFile:
             player = aFile.get("player")
@@ -83,9 +81,7 @@ class Stats:
         return player
 
     def save(self):
-        """
-            The save method saves the players statistics.
-        """
+        """The save method saves the players statistics."""
 
         with shelve.open("guessGameStats.save", "c") as aFile:
             aFile["player"] = self
@@ -96,18 +92,18 @@ class Stats:
             print function.
         """
 
-        statOutput =  (
-            "{:^50}\n{}\n".format("Player Statistics", 50 * "*")
-            + "Games Played: {}\n".format(self.gamesPlayed)
-            + "Valid Guesses: {}\n".format(self.validGuesses)
-            + "Invalid Guesses: {}\n".format(self.invalidGuesses)
-            + "Average: {:.2f}%\n".format(self.gamesPlayed / self.validGuesses * 100)
-        )
+        statOutput = ("{1}\n{0:^50}\n{1}\n".format(
+                                        "Player Statistics", 50 * "*") +
+                      "Games Played: {}\n".format(self.gamesPlayed) +
+                      "Valid Guesses: {}\n".format(self.validGuesses) +
+                      "Invalid Guesses: {}\n".format(self.invalidGuesses) +
+                      "Average: {:.2f}%\n".format(self.gamesPlayed /
+                                                  self.validGuesses * 100))
 
         return statOutput
 
 
-def guessGame(cliArg=None):
+def guessGame(doUlams=False):
     """
         The guessGame function is used to handle the games functionality.
         The game will pick a random number 1 to 100 and prompt the user
@@ -121,18 +117,13 @@ def guessGame(cliArg=None):
     if os.path.exists("guessGameStats.save"):
         playerStats = playerStats.load()
 
-
     numToGuess = random.randint(1, 100)
     playerStats.gamesPlayed += 1
+    prevGuesses = playerStats.validGuesses
     guesses = False
     lied = False
     toHigh = "{} is too high - try again"
     toLow = "{} is too low - try again"
-
-    if cliArg == "-u":
-        ulamsNum = ulams(numToGuess)
-    else:
-        ulamsNum = 0
 
     while True:
         if not guesses:
@@ -166,26 +157,27 @@ def guessGame(cliArg=None):
 
         if intInput == numToGuess:
             print("{} is correct! You guessed my number in {} guess(es).".
-                  format(usrInput, playerStats.validGuesses))
-            if lied:
-                print(iLied.format(ulamsNum))
-            elif cliArg == "-u":
+                  format(usrInput, playerStats.validGuesses - prevGuesses))
+
+            if doUlams and lied:
+                print(iLied)
+            elif doUlams:
                 print("I did not lie this game.")
 
             # Save the player Stats
             playerStats.save()
             break
         elif intInput < numToGuess:
-            if intInput == ulamsNum:
+            if doUlams and not lied and ulams(numToGuess, intInput):
                 print(toHigh.format(usrInput), end="")
-                iLied = "I lied about {} being to high."
+                iLied = "I lied about {} being to high.".format(intInput)
                 lied = True
             else:
                 print(toLow.format(usrInput), end="")
         elif intInput > numToGuess:
-            if intInput == ulamsNum:
+            if doUlams and not lied and ulams(numToGuess, intInput):
                 print(toLow.format(usrInput), end="")
-                iLied = "I lied about {} being to low"
+                iLied = "I lied about {} being to low".format(intInput)
                 lied = True
             else:
                 print(toHigh.format(usrInput), end="")
@@ -193,25 +185,25 @@ def guessGame(cliArg=None):
     print(playerStats)
 
 
-def ulams(defaultRandInt):
+def ulams(defaultRandInt, intInput):
     """
         ulams function is used when the -u option is used on the
-        command line. It will pick a random number not equal to the
-        numberToGuess in the guessGame function.
+        command line. It will pick a random number between 5 numbers to the
+        left and right of intInput. I it picks the same number it will
+        return True so the game lies or False so the game will not lie.
     """
 
-    eqNum = True
-    while eqNum:
-        randNum = random.randint(1, 100)
-        if not randNum == defaultRandInt:
-            eqNum = False
+    randNum = random.randint(defaultRandInt - 5, defaultRandInt + 5)
 
-    return randNum
+    if randNum == intInput:
+        return True
+
+    return False
 
 
 def main():
     if "-u" in sys.argv and len(sys.argv) < 3:
-        guessGame(sys.argv[1])
+        guessGame(True)
     elif len(sys.argv) == 1:
         guessGame()
     else:
