@@ -120,12 +120,13 @@ def guessGame(doUlams=False):
     numToGuess = random.randint(1, 100)
     playerStats.gamesPlayed += 1
     prevGuesses = playerStats.validGuesses
+    playing = True
     guesses = False
     lied = False
     toHigh = "{} is too high - try again"
     toLow = "{} is too low - try again"
 
-    while True:
+    while playing:
         if not guesses:
             print("I'm Thinking of a number from 1 to 100\n"
                   "Try to guess my number", end="")
@@ -144,16 +145,16 @@ def guessGame(doUlams=False):
                 continue
 
         except (KeyboardInterrupt, EOFError):
-            usrInput = input("\nWould you like to quit [y]es|[n]o: ")
+                usrInput = input("\nWould you like to quit [y]es|[n]o: ")
 
-            if usrInput.lower() in ["y", "yes"]:
-                exit()
-            elif usrInput.lower() in ["n", "no"]:
-                guesses = False
-                continue
-            else:
-                print("Seriously... I quit...")
-                exit()
+                if usrInput.lower() in ["y", "yes"]:
+                    exit()
+                elif usrInput.lower() in ["n", "no"]:
+                    guesses = False
+                    continue    
+                else:
+                    print("Seriously... I quit...")
+                    exit()
 
         if intInput == numToGuess:
             print("{} is correct! You guessed my number in {} guess(es).".
@@ -166,7 +167,7 @@ def guessGame(doUlams=False):
 
             # Save the player Stats
             playerStats.save()
-            break
+            playing = False
         elif intInput < numToGuess:
             if doUlams and not lied and ulams(numToGuess, intInput):
                 print(toHigh.format(usrInput), end="")
